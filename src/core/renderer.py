@@ -6,7 +6,7 @@ from weasyprint import HTML
 
 class Renderer:
     @staticmethod
-    def render(template: str, data: dict):
+    def render(template: str, data: dict) -> str: # возврщает ссылку
         jinja_template = Template(template)
         html_content = jinja_template.render(**data)
 
