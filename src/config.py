@@ -14,3 +14,5 @@ class Settings(BaseSettings):
     S3_PORT: int
     TASKIQ_BROKER_URL: str
     TASKIQ_BACKEND_URL: str
+
+settings = Settings()
