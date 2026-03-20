@@ -1,7 +1,7 @@
 [project]
-name = "s3integration"
+name = "document-renderer-backend"
 version = "0.1.0"
-description = "Document renderer backend"
+description = "Document renderer with Taskiq worker"
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
 
@@ -13,6 +13,4 @@ dependencies = [
     "taskiq-aio-pika>=0.6.0",
     "taskiq-redis>=1.2.2",
     "weasyprint>=68.1",
-    "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.32.0",
 ]

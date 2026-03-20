@@ -1,25 +1,24 @@
-# src/main.py
-from fastapi import FastAPI
-from pydantic import BaseModel
+import asyncio
 
 from src.config import Settings
-from src.tasks import generate_certificate_task
-
-app = FastAPI()
-settings = Settings()
+from src.utils.S3Storage import S3Storage
 
 
-class CertificateRequest(BaseModel):
-    template_content: str
-    data: dict
-    filename: str | None = None
+async def main():
+    settings = Settings()
 
+    endpoint_url = f"http://{settings.S3_URL}:{settings.S3_PORT}"
 
-@app.post("/generate")
-async def generate_certificate(req: CertificateRequest):
-    task = await generate_certificate_task.kiq(
-        req.template_content,
-        req.data,
-        req.filename,
+    storage = S3Storage(
+        endpoint_url=endpoint_url,
+        access_key=settings.MINIO_ROOT_USER,
+        secret_key=settings.MINIO_ROOT_PASSWORD,
+        bucket_name="your-bucket-name",
     )
-    return {"task_id": task.task_id}
+
+    await storage.connect()
+    await storage.upload_file("certificate.pdf", "certificate.pdf")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
