@@ -1,5 +1,3 @@
-import os
-
 from taskiq_aio_pika import AioPikaBroker
 from taskiq_redis import RedisAsyncResultBackend
 
@@ -8,8 +6,8 @@ from src.config import Settings
 
 settings = Settings()
 
-broker_url = settings.TASKIQ_BROKER_URL or "amqp://guest:guest@rabbitmq:5672"
-backend_url = settings.TASKIQ_BACKEND_URL or "redis://redis:6379"
+broker_url = settings.TASKIQ_BROKER_URL
+backend_url = settings.TASKIQ_BACKEND_URL
 
 broker = AioPikaBroker(url=broker_url).with_result_backend(
     RedisAsyncResultBackend(redis_url=backend_url),

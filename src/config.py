@@ -12,5 +12,10 @@ class Settings(BaseSettings):
     MINIO_ROOT_PASSWORD: str
     S3_URL: str
     S3_PORT: int
+
     TASKIQ_BROKER_URL: str
     TASKIQ_BACKEND_URL: str
+
+    RABBITMQ_DEFAULT_USER: str
+    RABBITMQ_DEFAULT_PASS: str
+    REDIS_PASSWORD: str
