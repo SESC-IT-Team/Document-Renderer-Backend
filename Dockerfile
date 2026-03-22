@@ -14,17 +14,14 @@ RUN apk add --no-cache \
     bash \
     build-base \
     libpq \
-    postgresql-dev \
     git \
     curl
 
 RUN pip install --no-cache-dir uv
 
-COPY pyproject.toml README.md uv.lock ./
+COPY pyproject.toml uv.lock ./
 
-RUN uv sync --no-dev --no-install-project --python /usr/local/bin/python
+RUN uv sync --no-dev
+
 
 COPY . .
-
-ENV PYTHONPATH=/app
-ENV PATH="/app/.venv/bin:${PATH}"
