@@ -23,6 +23,7 @@ class S3Storage:
         self.region_name = region_name
         self._session = aioboto3.Session()
 
+
     async def _create_bucket(self):
         async with self._session.client(
             "s3",
@@ -34,10 +35,9 @@ class S3Storage:
             try:
                 await s3_client.create_bucket(Bucket=self.bucket_name)
             except ClientError as e:
-                if e.response['Error']['Code'] in ('BucketAlreadyOwnedByYou', 'BucketAlreadyExists'):
-                    pass
-                else:
+                if not (e.response['Error']['Code'] in ('BucketAlreadyOwnedByYou', 'BucketAlreadyExists')):
                     raise
+
 
     async def connect(self):
         await self._create_bucket()
@@ -52,7 +52,7 @@ class S3Storage:
 
         local_path = Path(local_path)
         if not local_path.is_file():
-            raise FileNotFoundError(f"Файл не найден: {local_path}")
+            raise FileNotFoundError(f"File not found: {local_path}")
 
         if object_name is None:
             object_name = local_path.name
@@ -73,37 +73,9 @@ class S3Storage:
                 )
                 return True
             except ClientError as e:
-                print(f"Ошибка при загрузке файла: {e}")
+                print(f"Error while downloading a file: {e}")
                 return False
 
-    async def upload_bytes(
-        self,
-        data: bytes,
-        object_name: str,
-        extra_args: Optional[dict] = None,
-    ) -> bool:
-
-        async with self._session.client(
-            "s3",
-            endpoint_url=self.endpoint_url,
-            aws_access_key_id=self.access_key,
-            aws_secret_access_key=self.secret_key,
-            region_name=self.region_name,
-        ) as s3_client:
-            try:
-
-                from io import BytesIO
-                with BytesIO(data) as file_obj:
-                    await s3_client.upload_fileobj(
-                        file_obj,
-                        self.bucket_name,
-                        object_name,
-                        ExtraArgs=extra_args or {},
-                    )
-                return True
-            except ClientError as e:
-                print(f"Ошибка при загрузке байтов: {e}")
-                return False
 
     async def upload_fileobj(
         self,
@@ -130,3 +102,4 @@ class S3Storage:
             except ClientError as e:
                 print(f"Failed to upload: {e}")
                 return False
+

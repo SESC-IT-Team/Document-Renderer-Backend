@@ -1,38 +1,48 @@
-from pathlib import Path
+import os
+import tempfile
 from jinja2 import Template
 from weasyprint import HTML
-
-
+from src.utils.S3Storage import S3Storage
+from src.config import Settings
 
 class Renderer:
+
     @staticmethod
-    def render(template: str, data: dict) -> str: # возврщает ссылку
-        jinja_template = Template(template)
-        html_content = jinja_template.render(**data)
+    def render(template: str, data: dict):
+        base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        resource_path = os.path.join(base_path, "resource")
+        resource_path_url = resource_path.replace("\\", "/")
+        resource_path_url = f"file:///{resource_path_url}"
 
-        base_dir = Path(__file__).resolve().parent
-        static_dir = base_dir / 'src' / 'templates'
-        base_url_uri = static_dir.as_uri()
+        data['resource_path'] = resource_path_url
+        
+        html_content = Template(template).render(**data)
 
-        html_doc = HTML(string=html_content, base_url=base_url_uri)
-        output_path = base_dir / 'certificate.pdf'
-        html_doc.write_pdf(str(output_path))
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False, encoding='utf-8') as f: 
+            f.write(html_content)
+            temp_path = f.name
 
+        HTML(f'file://{temp_path}').write_pdf('output.pdf')
+        os.unlink(temp_path)
 
-"""
-        env = Environment(loader=FileSystemLoader('templates'))
-        template = env.get_template('SocialFoundationCertificate.html') 
-        data['logo_path'] = 'logo.png' 
+        settings = Settings()
+        endpoint_url = f"http://{settings.S3_URL}:{settings.S3_PORT}"
 
-        html_content = template.render(**data.model_dump())
+        storage = S3Storage(
+            endpoint_url=endpoint_url,
+            access_key=settings.MINIO_ROOT_USER,
+            secret_key=settings.MINIO_ROOT_PASSWORD,
+            bucket_name=settings.BUCKET_NAME
+        )
 
-        base_dir = Path(__file__).resolve().parent
-        template_dir = base_dir / 'src' / 'templates'
-
-        base_url_uri = template_dir.as_uri()
-
-        html_doc = HTML(string=html_content, base_url=base_url_uri)
-
-        output_filename = base_dir / 'certificate.pdf'
-        html_doc.write_pdf(str(output_filename))
-"""
+        import asyncio
+        
+        async def upload():
+            try:
+                await storage.connect()
+                name_at_the_server = "FinalTest.pdf"
+                await storage.upload_file("output.pdf", name_at_the_server)
+            except Exception as e:
+                print(f"Error with S3 work! {e}")
+        
+        asyncio.run(upload())

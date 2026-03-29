@@ -1,16 +1,13 @@
 [project]
-name = "document-renderer-backend"
+name = "s3integration"
 version = "0.1.0"
-description = "Document renderer with Taskiq worker"
+description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12,<4.0"
-
+requires-python = ">=3.13"
 dependencies = [
     "aioboto3>=15.5.0",
     "jinja2>=3.1.6",
+    "playwright>=1.58.0",
     "pydantic-settings>=2.13.1",
-    "taskiq>=0.12.1",
-    "taskiq-aio-pika>=0.6.0",
-    "taskiq-redis>=1.2.2",
     "weasyprint>=68.1",
 ]
