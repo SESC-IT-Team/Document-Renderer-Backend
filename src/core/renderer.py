@@ -1,3 +1,4 @@
+import asyncio
 import os
 import tempfile
 from jinja2 import Template
@@ -8,7 +9,9 @@ from src.config import Settings
 class Renderer:
 
     @staticmethod
-    def render(template: str, data: dict):
+    def render(template: str, data: dict, filename: str):
+        if ('.' not in filename):
+            filename += ".pdf"
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         resource_path = os.path.join(base_path, "resource")
         resource_path_url = resource_path.replace("\\", "/")
@@ -22,7 +25,7 @@ class Renderer:
             f.write(html_content)
             temp_path = f.name
 
-        HTML(f'file://{temp_path}').write_pdf('output.pdf')
+        HTML(f'file://{temp_path}').write_pdf(filename)
         os.unlink(temp_path)
 
         settings = Settings()
@@ -35,13 +38,10 @@ class Renderer:
             bucket_name=settings.BUCKET_NAME
         )
 
-        import asyncio
-        
         async def upload():
             try:
                 await storage.connect()
-                name_at_the_server = "FinalTest.pdf"
-                await storage.upload_file("output.pdf", name_at_the_server)
+                await storage.upload_file(filename, filename)
             except Exception as e:
                 print(f"Error with S3 work! {e}")
         
