@@ -11,7 +11,7 @@ from src.config import Settings
 class Renderer:
 
     @staticmethod
-    async def render(template: str, data: dict, filename: str | None = None):
+    async def render(template: str, data: dict, filename: str | None = None) -> str:
         if filename is None:
             filename = f"{uuid.uuid4()}.pdf"
         if '.' not in filename:
@@ -47,3 +47,5 @@ class Renderer:
             await storage.upload_file(filename, filename)
         except Exception as e:
             print(f"Error with S3 work! {e}")
+
+        return filename
