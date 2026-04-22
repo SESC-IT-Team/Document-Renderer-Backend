@@ -22,7 +22,7 @@ async def generate_certificate_task(
     filename: str | None = None,
 ) -> dict:
     try:
-        result_filename = Renderer.render(
+        result_filename = await Renderer.render(
             template=template_content,
             data=data,
             filename=filename,

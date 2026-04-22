@@ -1,6 +1,8 @@
 import asyncio
 import os
 import tempfile
+import uuid
+
 from jinja2 import Template
 from weasyprint import HTML
 from src.utils.S3Storage import S3Storage
@@ -9,8 +11,10 @@ from src.config import Settings
 class Renderer:
 
     @staticmethod
-    def render(template: str, data: dict, filename: str):
-        if ('.' not in filename):
+    async def render(template: str, data: dict, filename: str | None = None):
+        if filename is None:
+            filename = f"{uuid.uuid4()}.pdf"
+        if '.' not in filename:
             filename += ".pdf"
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         resource_path = os.path.join(base_path, "resource")
@@ -38,11 +42,8 @@ class Renderer:
             bucket_name=settings.BUCKET_NAME
         )
 
-        async def upload():
-            try:
-                await storage.connect()
-                await storage.upload_file(filename, filename)
-            except Exception as e:
-                print(f"Error with S3 work! {e}")
-        
-        asyncio.run(upload())
+        try:
+            await storage.connect()
+            await storage.upload_file(filename, filename)
+        except Exception as e:
+            print(f"Error with S3 work! {e}")
