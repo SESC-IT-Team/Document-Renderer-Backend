@@ -1,8 +1,10 @@
 from taskiq_aio_pika import AioPikaBroker
 from taskiq_redis import RedisAsyncResultBackend
 
-from src.config import settings
+from src.config import Settings
 from src.core.renderer import Renderer
+
+settings = Settings()
 
 broker = AioPikaBroker(
     url=settings.TASKIQ_BROKER_URL,
@@ -21,7 +23,7 @@ async def generate_certificate_task(
 ) -> dict:
     try:
         result_filename = Renderer.render(
-            template_content=template_content,
+            template=template_content,
             data=data,
             filename=filename,
         )
