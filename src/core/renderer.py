@@ -11,7 +11,7 @@ from src.config import Settings
 class Renderer:
 
     @staticmethod
-    async def render(template: str, data: dict, filename: str | None = None) -> str:
+    async def render(template: str, data: dict, filename: str | None = None, bucket_name: str | None = None) -> str:
         if filename is None:
             filename = f"{uuid.uuid4()}.pdf"
         if '.' not in filename:
@@ -34,18 +34,22 @@ class Renderer:
 
         settings = Settings()
         endpoint_url = f"http://{settings.S3_URL}:{settings.S3_PORT}"
+        bucket_name = bucket_name or settings.BUCKET_NAME
 
         storage = S3Storage(
             endpoint_url=endpoint_url,
             access_key=settings.MINIO_ROOT_USER,
             secret_key=settings.MINIO_ROOT_PASSWORD,
-            bucket_name=settings.BUCKET_NAME
+            bucket_name=bucket_name
         )
 
         try:
             await storage.connect()
             await storage.upload_file(filename, filename)
+            file_url = f"{endpoint_url}/{bucket_name}/{filename}"
+            return file_url
         except Exception as e:
             print(f"Error with S3 work! {e}")
+            raise
 
         return filename

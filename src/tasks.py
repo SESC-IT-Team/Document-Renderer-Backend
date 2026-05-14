@@ -20,13 +20,16 @@ async def generate_certificate_task(
     template_content: str,
     data: dict,
     filename: str | None = None,
+    bucket_name: str | None = None,
 ) -> dict:
     try:
-        result_filename = await Renderer.render(
+        bucket_name = bucket_name or settings.BUCKET_NAME
+        file_url = await Renderer.render(
             template=template_content,
             data=data,
             filename=filename,
+            bucket_name=bucket_name,
         )
-        return {"status": "success", "filename": result_filename}
+        return {"status": "success", "file_url": file_url}
     except Exception as e:
         return {"status": "error", "message": str(e)}
