@@ -46,10 +46,12 @@ class Renderer:
         try:
             await storage.connect()
             await storage.upload_file(filename, filename)
-            file_url = f"{endpoint_url}/{bucket_name}/{filename}"
+            file_url = await storage.generate_presigned_url(
+                filename,
+                expiration=99999999999
+            )
             return file_url
         except Exception as e:
             print(f"Error with S3 work! {e}")
             raise
 
-        return filename

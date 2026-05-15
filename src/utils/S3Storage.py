@@ -103,3 +103,21 @@ class S3Storage:
                 print(f"Failed to upload: {e}")
                 return False
 
+    async def generate_presigned_url(
+            self,
+            object_name: str,
+            expiration: int = 3600  # секунды
+    ) -> str:
+        async with self._session.client(
+                "s3",
+                endpoint_url=self.endpoint_url,
+                aws_access_key_id=self.access_key,
+                aws_secret_access_key=self.secret_key,
+                region_name=self.region_name,
+        ) as s3_client:
+            url = await s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': self.bucket_name, 'Key': object_name},
+                ExpiresIn=expiration
+            )
+            return url
