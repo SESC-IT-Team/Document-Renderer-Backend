@@ -33,7 +33,7 @@ class Renderer:
         os.unlink(temp_path)
 
         settings = Settings()
-        endpoint_url = f"http://{settings.S3_URL}:{settings.S3_PORT}"
+        endpoint_url = f"{settings.S3_URL}"
         bucket_name = bucket_name or settings.BUCKET_NAME
 
         storage = S3Storage(
