@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     MINIO_ROOT_USER: str
     MINIO_ROOT_PASSWORD: str
     S3_URL: str
-    S3_PORT: int
     BUCKET_NAME: str
 
     REDIS_HOST: str = "localhost"
