@@ -15,7 +15,8 @@ RUN apk add --no-cache \
     build-base \
     libpq \
     git \
-    curl
+    curl \
+    ca-certificates
 
 RUN pip install --no-cache-dir uv
 
